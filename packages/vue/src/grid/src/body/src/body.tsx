@@ -982,6 +982,9 @@ export default defineComponent({
         $table.triggerScrollYEvent(event)
       }
 
+      // 校验错误提示浮层跟随单元格滚动更新位置 (#3960)
+      $table.updateValidTooltip && $table.updateValidTooltip()
+
       emitEvent($table, 'scroll', [{ type: 'body', scrollTop, scrollLeft, isX, isY, $table }, event])
     },
     resizeMousedown(event, params) {

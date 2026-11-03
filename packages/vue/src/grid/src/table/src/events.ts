@@ -79,6 +79,11 @@ export function handleGlobalMousewheelEvent(event) {
   this.closeMenu()
 }
 
+// 全局页面滚动事件：校验错误提示浮层跟随单元格滚动更新位置 (#3960)
+export function handleGlobalScrollEvent() {
+  this.updateValidTooltip()
+}
+
 export function handleEscKeyDown({ event, actived, mouseConfig }) {
   this.closeMenu()
   this.closeFilter()

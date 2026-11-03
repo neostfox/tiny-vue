@@ -356,5 +356,13 @@ export default {
     }
 
     return this.$nextTick()
+  },
+  // 校验错误提示浮层跟随单元格滚动更新位置，否则页面滚动时浮层停留在原位置 (#3960)
+  updateValidTooltip() {
+    const validTip = this.$refs.validTip
+
+    if (validTip && this.validStore.visible) {
+      validTip.updatePopper()
+    }
   }
 }

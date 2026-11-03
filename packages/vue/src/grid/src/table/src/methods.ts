@@ -93,6 +93,7 @@ import {
   handleGlobalMousedownEvent,
   handleGlobalBlurEvent,
   handleGlobalMousewheelEvent,
+  handleGlobalScrollEvent,
   handleArrowKeyDown,
   handleCopyKeyDown,
   handleCtxMenu,
@@ -462,9 +463,7 @@ const Methods = {
     if (backup && (editConfig || saveSource)) {
       /* 在空闲帧任务中备份数据；Safari 等环境可能无 requestIdleCallback */
       const scheduleIdle: (cb: () => void) => unknown =
-        typeof requestIdleCallback === 'function'
-          ? (cb) => requestIdleCallback(cb)
-          : (cb) => setTimeout(cb, 1)
+        typeof requestIdleCallback === 'function' ? (cb) => requestIdleCallback(cb) : (cb) => setTimeout(cb, 1)
 
       scheduleIdle(() => {
         const rowidCacheMap = new Map()
@@ -1341,6 +1340,7 @@ const Methods = {
   handleGlobalMousedownEvent,
   handleGlobalBlurEvent,
   handleGlobalMousewheelEvent,
+  handleGlobalScrollEvent,
   handleEscKeyDown,
   handleEnterKeyDown,
   handleCtxMenu,

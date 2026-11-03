@@ -62,6 +62,7 @@ if (browserInfo.isDoc) {
   on(window, 'blur', GlobalEvent.trigger)
   on(window, 'resize', GlobalEvent.trigger)
   on(window, wheelName, GlobalEvent.trigger)
+  on(window, 'scroll', GlobalEvent.trigger)
 }
 
 export default GlobalEvent
