@@ -462,9 +462,7 @@ const Methods = {
     if (backup && (editConfig || saveSource)) {
       /* 在空闲帧任务中备份数据；Safari 等环境可能无 requestIdleCallback */
       const scheduleIdle: (cb: () => void) => unknown =
-        typeof requestIdleCallback === 'function'
-          ? (cb) => requestIdleCallback(cb)
-          : (cb) => setTimeout(cb, 1)
+        typeof requestIdleCallback === 'function' ? (cb) => requestIdleCallback(cb) : (cb) => setTimeout(cb, 1)
 
       scheduleIdle(() => {
         const rowidCacheMap = new Map()
@@ -2196,8 +2194,14 @@ const Methods = {
 
     return columnIds.join(',')
   },
-  /** 获取所有多选数据状态, Tiny 规范后的名字 */
-  getAllSelection() {
+  /** 获取所有多选数据状态, Tiny 规范后的名字。notCopy为true不返回数据副本 */
+  getAllSelection(notCopy) {
+    const { selectConfig = {} } = this
+    // 配置了 checkField 时勾选状态保存在行数据字段上、不进入 selection 集合，
+    // 需按字段从全量数据中过滤，否则永远返回空数组 (#3884)
+    if (selectConfig.checkField) {
+      return this.getSelectRecords(notCopy)
+    }
     return this.selection
   },
   /** 获取所有多选数据状态的历史名字，仅用于兼容老代码。
