@@ -26,7 +26,16 @@ import { debounce } from '@opentiny/utils'
 import { hooks } from '@opentiny/vue-common'
 import { addClass } from '@opentiny/utils'
 import { browserInfo } from '@opentiny/utils'
-import { isArray, destructuring, set, get, remove, filterTree, find } from '@opentiny/vue-renderless/grid/static/'
+import {
+  isArray,
+  destructuring,
+  set,
+  get,
+  remove,
+  filterTree,
+  findTree,
+  find
+} from '@opentiny/vue-renderless/grid/static/'
 import { getCell, getCellValue, setCellValue, emitEvent, getRowid } from '@opentiny/vue-renderless/grid/utils'
 import { Renderer } from '../../adapter'
 import { error, warn } from '../../tools'
@@ -321,9 +330,25 @@ export default {
    * 只精准匹配row的更改。如果是树表格，子节点更改状态不会影响父节点的更新状态
    */
   _getUpdateRecords() {
-    let { tableFullData, treeConfig } = this
+    let { tableFullData, treeConfig, dragSortRecords } = this
     let handler = (row) => !this.isTemporaryRow(row) && this.hasRowChange(row)
     let updateRecords = treeConfig ? filterTree(tableFullData, handler, treeConfig) : tableFullData.filter(handler)
+
+    // 行拖拽排序只改变行顺序、不产生字段 diff，不会进入上面的字段比对，
+    // 将拖拽影响的行并入更新记录；已删除、临时（新增）或已不在当前数据中的行除外 (#3924)
+    let removeRecords = this.getRemoveRecords()
+    let isRowInFullData = (row) =>
+      treeConfig ? !!findTree(tableFullData, (item) => item === row, treeConfig) : ~tableFullData.indexOf(row)
+    dragSortRecords.forEach((row) => {
+      if (
+        !~updateRecords.indexOf(row) &&
+        !~removeRecords.indexOf(row) &&
+        !this.isTemporaryRow(row) &&
+        isRowInFullData(row)
+      ) {
+        updateRecords.push(row)
+      }
+    })
 
     return updateRecords
   },

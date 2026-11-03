@@ -395,6 +395,8 @@ export default defineComponent({
       },
       // 多选属性，已选中的列
       selection: [],
+      // 行拖拽排序后受影响的行记录（拖拽只改变顺序、不产生字段 diff）(#3924)
+      dragSortRecords: [],
       // tooltip提示内容
       tooltipContent: '',
       // tooltip提示内容是否处理换行字符

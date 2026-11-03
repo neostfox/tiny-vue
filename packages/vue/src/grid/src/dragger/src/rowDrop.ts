@@ -68,12 +68,16 @@ export const createHandlerOnEnd = ({ _vm, refresh }) => {
         prevNode.items.splice(prevNode.index + (selfNode.index < prevNode.index ? 0 : 1), 0, currRow)
         prevNode.items = [].concat(prevNode.items)
       }
+      // 记录被拖拽的行，使其包含进 getRecordset().updateRecords (#3924)
+      _vm.markDragSortRecords([currRow])
       // 过滤表格外拖拽
     } else if (nextEl && nextEl.classList.contains('tiny-grid-body__row')) {
       // 移动到第一行
       const currRow = selfNode.items.splice(selfNode.index, 1)[0]
       tableTreeData.unshift(currRow)
       _vm.tableFullData = [].concat(tableTreeData)
+      // 记录被拖拽的行，使其包含进 getRecordset().updateRecords (#3924)
+      _vm.markDragSortRecords([currRow])
     }
 
     if (_vm.tableFullColumn) {

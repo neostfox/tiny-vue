@@ -206,6 +206,8 @@ const Methods = {
     this.clearRowExpand()
     this.clearTreeExpand()
     this.clearValidateMap()
+    // 重置表格时一并清空行拖拽排序的变更记录 (#3924)
+    this.dragSortRecords = []
 
     // 存在配置时，移除 clearScroll, 重载数据时不清除滚动位置
     if (!isReloadScroll) {
@@ -462,9 +464,7 @@ const Methods = {
     if (backup && (editConfig || saveSource)) {
       /* 在空闲帧任务中备份数据；Safari 等环境可能无 requestIdleCallback */
       const scheduleIdle: (cb: () => void) => unknown =
-        typeof requestIdleCallback === 'function'
-          ? (cb) => requestIdleCallback(cb)
-          : (cb) => setTimeout(cb, 1)
+        typeof requestIdleCallback === 'function' ? (cb) => requestIdleCallback(cb) : (cb) => setTimeout(cb, 1)
 
       scheduleIdle(() => {
         const rowidCacheMap = new Map()
@@ -768,6 +768,17 @@ const Methods = {
       tableColumn: tableColumn.slice(0),
       collectColumn: collectColumn.slice(0)
     }
+  },
+  // 记录行拖拽排序影响的行：拖拽只改变顺序、不产生字段 diff，
+  // 需单独记录才能包含进 getRecordset().updateRecords (#3924)
+  markDragSortRecords(rows) {
+    const list = this.dragSortRecords || (this.dragSortRecords = [])
+
+    rows.forEach((row) => {
+      if (row && !~list.indexOf(row)) {
+        list.push(row)
+      }
+    })
   },
   // 获取表格所有数据
   getData(rowIndex) {
