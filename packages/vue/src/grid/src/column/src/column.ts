@@ -164,6 +164,28 @@ export default defineComponent({
       () => (state.columnConfig.format = props.formatConfig)
     )
 
+    // 列配置对象（ColumnConfig）在组件创建时一次性快照 props，此后子组件 prop 变化
+    // 不会触发列重新收集（computeCollectKey 仅依赖列 id），需要手动同步到已创建的
+    // 列配置对象上，对齐相关属性才能动态响应 (#4230)
+    watch(
+      () => props.align,
+      (value) => {
+        state.columnConfig.align = value
+      }
+    )
+    watch(
+      () => props.headerAlign,
+      (value) => {
+        state.columnConfig.headerAlign = value
+      }
+    )
+    watch(
+      () => props.footerAlign,
+      (value) => {
+        state.columnConfig.footerAlign = value
+      }
+    )
+
     onUpdated(() => {
       // vue2的slots会对$scopedSlots做一层代理，因此获取不到更新
       const noProxySlots = instance.$scopedSlots || instance.slots
