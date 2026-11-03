@@ -462,9 +462,7 @@ const Methods = {
     if (backup && (editConfig || saveSource)) {
       /* 在空闲帧任务中备份数据；Safari 等环境可能无 requestIdleCallback */
       const scheduleIdle: (cb: () => void) => unknown =
-        typeof requestIdleCallback === 'function'
-          ? (cb) => requestIdleCallback(cb)
-          : (cb) => setTimeout(cb, 1)
+        typeof requestIdleCallback === 'function' ? (cb) => requestIdleCallback(cb) : (cb) => setTimeout(cb, 1)
 
       scheduleIdle(() => {
         const rowidCacheMap = new Map()
@@ -1955,6 +1953,15 @@ const Methods = {
       if (this.afterMounted) {
         fastdom.mutate(() => {
           tableBodyElem && Object.assign(tableBodyElem, { scrollLeft: 0, scrollTop: 0 })
+          // 外层 scrollTop 本就为 0 时不会触发 scroll 事件，内层 sticky 容器的
+          // wrapperScrollLeft/wrapperScrollTop 会残留旧偏移，数据收缩（如分页
+          // pageSize 从大切小）后顶部出现空白占位 (#1276)
+          const tableBodyVm = this.$refs.tableBody
+          if (tableBodyVm) {
+            tableBodyVm.wrapperScrollLeft = 0
+            tableBodyVm.wrapperScrollTop = 0
+            tableBodyVm.resetStickyWrapperScrollPos()
+          }
         })
       }
     })
